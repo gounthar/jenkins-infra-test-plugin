@@ -2,6 +2,7 @@ pipeline {
   agent any
   tools {
         jdk 'jdk19' 
+        mvn "3.8.6'
   }
   stages {
     stage('Checkout') {
