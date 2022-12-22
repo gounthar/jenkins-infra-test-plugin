@@ -1,5 +1,28 @@
-/*
- See the documentation for more options:
- https://github.com/jenkins-infra/pipeline-library/
-*/
-buildPlugin(useContainerAgent: true, platforms: ['linux', 'windows'], artifactCachingProxyEnabled: true, jdkVersions: ['8','11','17'])
+pipeline {
+  agent any
+  tools {
+        jdk 'jdk19' 
+  }
+  stages {
+    stage('Checkout') {
+        steps {
+          checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/jenkinsci/jenkins-infra-test-plugin.git/']]])
+      }
+    }
+    stage('Shell script 0') {
+      steps {
+        withCredentials([string(credentialsId: 'GITHUB_CREDENTIALS_PSW', variable: 'GITHUB_CREDENTIALS_PSW')]) {
+          sh '''
+                java --version
+                mvn clean verify -Denforcer.skip=true
+          '''
+        }
+
+      }
+    }
+
+  }
+  options {
+    timeout(time: 66, unit: 'MINUTES')
+  }
+}
